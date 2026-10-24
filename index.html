@@ -397,44 +397,11 @@ const U3_REQ = [
   { w: "🙅 「この市議会議員をやめさせて」と求めたい", a: "R", why: "議員の解職＝原則3分の1以上で選挙管理委員会へ → 住民投票。" }
 ];
 const U3_RBTN = { J: "50分の1以上 → 首長", M: "50分の1以上 → 監査委員", R: "原則3分の1以上 → 選挙管理委員会" };
-function u3Lab(box) {
-  let mode = 0;
-  const render = () => {
-    box.innerHTML = `<div class="row2" style="margin-top:6px"><button class="btn ${mode === 0 ? "main" : "sub"}" id="m0" style="margin-top:4px;padding:10px;font-size:14px">① この仕事はどこ？</button><button class="btn ${mode === 1 ? "main" : "sub"}" id="m1" style="margin-top:4px;padding:10px;font-size:14px">② 直接請求ゲーム</button></div><div id="labin"></div>`;
-    $("#m0").onclick = () => { mode = 0; render(); };
-    $("#m1").onclick = () => { mode = 1; render(); };
-    mode === 0 ? u3Game($("#labin"), U3_SORT, U3_BTN, "この仕事は、国会・内閣・裁判所のどこ？", "lab")
-               : u3Game($("#labin"), U3_REQ, U3_RBTN, "このとき、署名はどれだけ？どこに請求する？", "lab2");
-  };
-  render();
-  return null;
-}
-function u3Game(el, src, btns, ask, sec) {
-  const deck = shuffle(src); let i = 0, ok = 0;
-  const one = () => {
-    if (i >= deck.length) {
-      const r = record(sec, ok, deck.length); markDone("lab");
-      el.innerHTML = `<div class="score">${ok}/${deck.length}</div><div class="badge">${ok === deck.length ? "🎉 パーフェクト！" : "もう一回やってみよう"}</div>${cmpHtml(r)}
-        ${bubble(ok === deck.length ? "fist-pump" : "thinking", ok === deck.length ? "だれが・どこへ、もう完璧だね！" : sec === "lab" ? "条約は「結ぶ＝内閣、承認＝国会」。恩赦も内閣だよ。" : "お金や条例は50分の1、人の地位をうばうのは3分の1！")}
-        <button class="btn main" id="again">もう一度</button><button class="btn sub" onclick="traps()">⚠️ ひっかけ ○× へ</button>`;
-      $("#again").onclick = () => u3Game(el, src, btns, ask, sec); if (ok === deck.length) confetti(); return;
-    }
-    const c = deck[i];
-    el.innerHTML = `${bubble("explain", ask)}
-      <div class="fig"><div class="muted" style="text-align:center">${i + 1} / ${deck.length}　正解 ${ok}</div>
-      <div class="sortcard">${c.w}</div>
-      <div class="choices" id="gb">${Object.keys(btns).map(k => `<button data-k="${k}">${btns[k]}</button>`).join("")}</div><div id="sfb"></div></div>`;
-    const bs = document.querySelectorAll("#gb button");
-    bs.forEach(b => b.onclick = () => {
-      const good = b.dataset.k === c.a; if (good) { ok++; addPts(5); }
-      bs.forEach(x => { x.disabled = true; if (x.dataset.k === c.a) x.classList.add("ok"); }); if (!good) b.classList.add("ng");
-      $("#sfb").innerHTML = `<div class="fb ${good ? "ok" : "ng"} pop"><h3>${good ? "⭕ 正解！ +5pt" : "❌ ざんねん…"}</h3>${c.why}</div><button class="btn main" id="sn">次へ</button>`;
-      $("#sn").onclick = () => { i++; one(); };
-      $("#sn").scrollIntoView({ behavior: "smooth", block: "end" });
-    });
-  };
-  one();
-}
+/* ラボの中身は共通の sortGame（エンジン）で動かす */
+const U3_GAME1 = { deck: U3_SORT, btns: U3_BTN, sec: "lab", ask: "この仕事は、国会・内閣・裁判所のどこ？",
+  perfect: "だれが・どこへ、もう完璧だね！", retry: "条約は「結ぶ＝内閣、承認＝国会」。恩赦も内閣だよ。" };
+const U3_GAME2 = { deck: U3_REQ, btns: U3_RBTN, sec: "lab2", ask: "このとき、署名はどれだけ？どこに請求する？",
+  perfect: "だれが・どこへ、もう完璧だね！", retry: "お金や条例は50分の1、人の地位をうばうのは3分の1！" };
 
 /* ===== STEP2 共通テスト形式（オリジナル問題・過去問の転載なし。形だけをならう） ===== */
 const U3_KY = {
@@ -521,7 +488,8 @@ const UNIT = {
   sub: "共通テスト「公共，政治・経済」｜衆議院の優越・議院内閣制・直接請求を、数字ごとスッキリ整理",
   video: "https://youtu.be/qZGB1dFyTE0", videoLen: "11分46秒",
   chapters: U3_CH, traps: U3_TRAPS, kyotsu: U3_KY,
-  lab: { icon: "🧪", title: "仕分けゲーム", sub: "この仕事は国会・内閣・裁判所のどこ？＋直接請求の署名と請求先", run: u3Lab },
+  lab: { icon: "🧪", title: "仕分けゲーム", sub: "この仕事は国会・内閣・裁判所のどこ？＋直接請求の署名と請求先",
+    modes: [{ label: "この仕事はどこ？", game: U3_GAME1 }, { label: "直接請求ゲーム", game: U3_GAME2 }] },
   next: { title: "政経4　日本国憲法と人権・平和主義", text: "憲法の基本原理と基本的人権を、まつり先生と一緒に整理しよう（動画準備中）。" }
 };
 
@@ -760,11 +728,51 @@ function resultScreen(res, opt) {
   if (pc >= 70) confetti();
 }
 
-/* --- 単元ごとの「動かして覚える」 --- */
+/* --- 単元ごとの「動かして覚える」（2026-10-24 政経3の形に統一）
+   UNIT.lab.modes = [{ label, run(el) }（自由に動かす）| { label, game: {...} }（仕分けゲーム）]
+   上にモード切替ボタン（①②…）、下に中身。ゲームは全単元で sortGame を使う。 --- */
 function lab() {
   screen(`<div class="card pop"><div class="stage">${UNIT.lab.icon} ${UNIT.lab.title}</div><div id="labx"></div></div>
     <button class="btn sub" onclick="home()">ホームにもどる</button>`);
-  cleanup = UNIT.lab.run($("#labx"));
+  const L = UNIT.lab; let mode = 0, stop = null;
+  const render = () => {
+    if (stop) { stop(); stop = null; }
+    $("#labx").innerHTML = `<div class="row2" style="margin-top:6px">${L.modes.map((m, i) => `<button class="btn ${i === mode ? "main" : "sub"}" id="m${i}" style="margin-top:4px;padding:10px;font-size:14px">${NO[i]} ${m.label}</button>`).join("")}</div><div id="labin"></div>`;
+    L.modes.forEach((m, i) => { $("#m" + i).onclick = () => { mode = i; render(); }; });
+    const m = L.modes[mode];
+    stop = (m.game ? sortGame($("#labin"), m.game) : m.run($("#labin"))) || null;
+  };
+  render();
+  cleanup = () => { if (stop) stop(); };
+}
+/* 仕分けゲーム（全単元共通）：g = { deck:[{w,a,why}], btns:{key:ラベル}, ask, sec, perfect, retry, fig?(), onPick?(c), extra?(c) } */
+function sortGame(el, g) {
+  const deck = shuffle(g.deck); let i = 0, ok = 0;
+  const one = () => {
+    if (i >= deck.length) {
+      const r = record(g.sec, ok, deck.length); markDone("lab");
+      el.innerHTML = `<div class="score">${ok}/${deck.length}</div><div class="badge">${ok === deck.length ? "🎉 パーフェクト！" : "もう一回やってみよう"}</div>${cmpHtml(r)}
+        ${bubble(ok === deck.length ? "fist-pump" : "thinking", ok === deck.length ? g.perfect : g.retry)}
+        <button class="btn main" id="again">もう一度</button><button class="btn sub" onclick="traps()">⚠️ ひっかけ ○× へ</button>`;
+      $("#again").onclick = () => sortGame(el, g); if (ok === deck.length) confetti(); return;
+    }
+    const c = deck[i];
+    el.innerHTML = `${bubble("explain", g.ask)}
+      <div class="fig">${g.fig ? g.fig() : ""}<div class="muted" style="text-align:center">${i + 1} / ${deck.length}　正解 ${ok}</div>
+      <div class="sortcard" data-a="${c.a}">${c.w}</div>
+      <div class="choices" id="gb">${Object.keys(g.btns).map(k => `<button data-k="${k}">${g.btns[k]}</button>`).join("")}</div><div id="sfb"></div></div>`;
+    const bs = document.querySelectorAll("#gb button");
+    bs.forEach(b => b.onclick = () => {
+      const good = b.dataset.k === String(c.a); if (good) { ok++; addPts(5); }
+      bs.forEach(x => { x.disabled = true; if (x.dataset.k === String(c.a)) x.classList.add("ok"); }); if (!good) b.classList.add("ng");
+      if (g.onPick) g.onPick(c);
+      $("#sfb").innerHTML = `<div class="fb ${good ? "ok" : "ng"} pop"><h3>${good ? "⭕ 正解！ +5pt" : "❌ ざんねん…"}</h3>${c.why}${g.extra ? g.extra(c) : ""}</div><button class="btn main" id="sn">次へ</button>`;
+      $("#sn").onclick = () => { i++; one(); };
+      $("#sn").scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+  };
+  one();
+  return null;
 }
 
 /* --- 紙ふぶき --- */
