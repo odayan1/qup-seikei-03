@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>政経3 国会・内閣・裁判所と地方自治｜Q-UP塾 公共・政経</title>
+<title>政治3 国会・内閣・裁判所と地方自治｜Q-UP塾 公共・政経</title>
 <meta name="theme-color" content="#0e6f78">
-<meta name="description" content="共通テスト「公共，政治・経済」政経3。衆議院の優越・議院内閣制・違憲審査・直接請求を、動画と同じ順番で復習＋共通テスト形式の問題。">
+<meta name="description" content="共通テスト「公共，政治・経済」政治3。衆議院の優越・議院内閣制・違憲審査・直接請求を、動画と同じ順番で復習＋共通テスト形式の問題。">
 <style>
 :root{--main:#0e6f78;--main2:#17939e;--soft:#e6f5f5;--acc:#ff6b57;--acc2:#ffe0db;--ink:#22303c;--bg:#f5f9f9;--ok:#1f9d55;--ng:#d64545;--gold:#d4a017;--small:#2f7fd1;--big:#e0782f;--ky:#4b3fa3;--kysoft:#efedfb}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -194,9 +194,9 @@ const top0 = () => window.scrollTo(0, 0);
 function screen(html) { if (cleanup) { cleanup(); cleanup = null; } closeModal(); app.innerHTML = html; top0(); }
 </script>
 <script>
-/* ===== 政経3 国会・内閣・裁判所＋地方自治（動画 https://youtu.be/qZGB1dFyTE0 と同じ順番・同じ言葉） ===== */
+/* ===== 政治3（旧政経3） 国会・内閣・裁判所＋地方自治（動画 https://youtu.be/bfrpZKqr3Ic と同じ順番・同じ言葉） ===== */
 /* 各場面の開始秒（動画の目次と同じ。build のあとに埋める） */
-const T3 = [0, 26, 72, 118, 175, 214, 253, 295, 330, 373, 423, 461, 512, 559, 603, 638, 669, 687];
+const T3 = [0, 29, 74, 121, 177, 216, 255, 298, 333, 376, 425, 463, 514, 562, 606, 641, 672, 689];
 
 /* 三権分立の図（HTML） */
 const U3_SANKEN = `<div class="sk">
@@ -484,19 +484,21 @@ const U3_KY = {
 };
 
 const UNIT = {
-  no: 3, key: "qups03_", title: "国会・内閣・裁判所と地方自治", titleHtml: "国会・内閣・裁判所<span>＋地方自治</span>",
+  no: 3, label: "政治3", key: "qups03_", title: "国会・内閣・裁判所と地方自治", titleHtml: "国会・内閣・裁判所<span>＋地方自治</span>",
   sub: "共通テスト「公共，政治・経済」｜衆議院の優越・議院内閣制・直接請求を、数字ごとスッキリ整理",
-  video: "https://youtu.be/qZGB1dFyTE0", videoLen: "11分46秒",
+  video: "https://youtu.be/bfrpZKqr3Ic", videoLen: "11分46秒",
   chapters: U3_CH, traps: U3_TRAPS, kyotsu: U3_KY,
   lab: { icon: "🧪", title: "仕分けゲーム", sub: "この仕事は国会・内閣・裁判所のどこ？＋直接請求の署名と請求先",
     modes: [{ label: "この仕事はどこ？", game: U3_GAME1 }, { label: "直接請求ゲーム", game: U3_GAME2 }] },
-  next: { title: "政経4　日本国憲法と人権・平和主義", text: "憲法の基本原理と基本的人権を、まつり先生と一緒に整理しよう（動画準備中）。" }
+  next: { title: "政治4　選挙と政党", text: "選挙制度のしくみと政党、現代の政治の課題を、まつり先生と一緒に整理しよう（動画準備中）。<br>※政治1（民主政治の基本原理と法）・政治2（日本国憲法と人権・平和主義）も準備中。そろったら政治1から順に見ると分かりやすいよ。" }
 };
 
 </script>
 <script>
 /* ===== 単元データの読み込み ===== */
 VIDEO = UNIT.video; KEY = UNIT.key;
+/* 2026-10-24 番号を分野ごとに（経済N／政治N／国際N／公共N）。UNIT.label が無い古い単元は「政経N」 */
+const LABEL = UNIT.label || ("政経" + UNIT.no);
 const CH = UNIT.chapters, TRAPS = UNIT.traps, KY = UNIT.kyotsu;
 CH.forEach((c, i) => c.qs.forEach(q => q.sec = c.id));
 TRAPS.forEach(q => q.sec = "trap");
@@ -550,7 +552,7 @@ function askHome() {
 function intro() {
   screen(`<div class="card pop">
     <img class="intro-logo" src="${IMG.logo}" alt="Q-UP塾 公共・政経">
-    <h1 style="margin-top:14px;text-align:center">政経${UNIT.no}　${UNIT.title}</h1>
+    <h1 style="margin-top:14px;text-align:center">${LABEL}　${UNIT.title}</h1>
     <div class="muted" style="text-align:center">${UNIT.sub}</div>
     ${bubble("hi", `まつりです！このアプリは<b>動画とセット</b>で使ってね。動画を見たら、すぐここで解こう。`)}
     <ul class="howto">
@@ -569,7 +571,7 @@ function home() {
   const d = done();
   const nq = CH.reduce((s, c) => s + c.qs.length, 0);
   screen(`<div class="card pop">
-    <h1>政経${UNIT.no}　${UNIT.title}</h1>
+    <h1>${LABEL}　${UNIT.title}</h1>
     <div class="muted">${UNIT.sub}</div>
     <a class="vcard" href="${VIDEO}" target="_blank" rel="noopener"><img src="${IMG["pose-hi"]}" alt="まつり先生"><span><b>▶ 動画を見る</b><small>YouTube・${UNIT.videoLen}　まずは動画から！</small></span></a></div>
   <div class="sec">STEP 1　動画の復習（動画と同じ順番）</div>
@@ -786,7 +788,7 @@ function confetti() {
 }
 
 $("#hlogo").src = IMG["logo-dark"]; $("#hlogo").onclick = home;
-$("#ht1").textContent = "政経" + UNIT.no; $("#ht2").innerHTML = UNIT.titleHtml || UNIT.title;
+$("#ht1").textContent = LABEL; $("#ht2").innerHTML = UNIT.titleHtml || UNIT.title;
 $("#pt").textContent = pts + " pt";
 intro();
 </script>
